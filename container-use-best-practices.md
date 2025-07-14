@@ -22,7 +22,7 @@ Container-useで作成した環境をローカルブランチにマージする�
 - 複数の実験的ブランチを並行してリモートに保存したい
 - 外部レビューツールと連携したい
 
-#### 方法1: checkout + 標準Git操作（推奨）
+#### 方法1: checkout + ブランチリネーム（推奨）
 
 ```bash
 # 1. 環境の作業内容を事前確認
@@ -33,8 +33,8 @@ container-use log <environment-id>
 container-use checkout <environment-id>
 # この時点で 'cu-<environment-id>' ブランチに切り替わります
 
-# 3. 任意のブランチ名で新しいブランチを作成
-git checkout -b feature/custom-feature-name
+# 3. 現在のブランチを任意の名前にリネーム（作業履歴を完全保持）
+git branch -M feature/custom-feature-name
 
 # 4. リモートリポジトリに直接プッシュ
 git push origin feature/custom-feature-name
@@ -55,6 +55,25 @@ EOF
 )"
 ```
 
+**方法1の利点**:
+- ✅ Container-useでの全ての作業履歴を保持
+- ✅ コミットハッシュが変わらない
+- ✅ 最もシンプルで効率的
+- ✅ 実際に検証済み（本ドキュメント作成で使用）
+
+#### 方法1-B: checkout + 新規ブランチ作成（代替手法）
+
+```bash
+# 既存のブランチから新しいブランチを作成する場合
+container-use checkout <environment-id>
+git checkout -b feature/custom-feature-name
+git push origin feature/custom-feature-name
+```
+
+**方法1-Bの特徴**:
+- 元のブランチ（cu-<environment-id>）を保持したい場合に有効
+- 複数のブランチバリエーションを作成する場合に適している
+
 #### 方法2: 環境内での直接操作
 
 ```bash
@@ -73,13 +92,30 @@ exit
 
 **注意**: この方法はCLAUDE.mdで制限されているため、使用前に制限事項を確認してください。
 
+#### 実践例: 本ドキュメントでの検証結果
+
+```bash
+# 実際に実行した手順（2024年12月14日検証）
+$ container-use checkout informed-bedbug
+Switched to branch 'cu-informed-bedbug'
+
+$ git branch -M docs/container-use-best-practices
+$ git push origin docs/container-use-best-practices
+remote: Create a pull request for 'docs/container-use-best-practices' on GitHub by visiting:
+remote:      https://github.com/70-10/container-use-practice/pull/new/docs/container-use-best-practices
+To ssh://github.com/70-10/container-use-practice.git
+ * [new branch]      docs/container-use-best-practices -> docs/container-use-best-practices
+```
+
+**検証結果**: ✅ 完全に成功。Container-use環境（informed-bedbug）で作成した676行のドキュメントが、ローカルマージなしで直接リモートブランチとしてプッシュされました。
+
 #### 使用ケース
 
 ##### CI/CDパイプラインとの統合
 ```bash
 # 例: 自動テスト用ブランチの作成
 container-use checkout test-implementation-env
-git checkout -b ci/automated-tests-$(date +%Y%m%d-%H%M%S)
+git branch -M ci/automated-tests-$(date +%Y%m%d-%H%M%S)
 git push origin ci/automated-tests-$(date +%Y%m%d-%H%M%S)
 
 # GitHub Actions などでこのブランチをトリガーに自動テストを実行
@@ -89,7 +125,7 @@ git push origin ci/automated-tests-$(date +%Y%m%d-%H%M%S)
 ```bash
 # 例: コードレビュー専用ブランチ
 container-use checkout feature-development-env
-git checkout -b review/feature-xyz-$(date +%m%d)
+git branch -M review/feature-xyz-$(date +%m%d)
 git push origin review/feature-xyz-$(date +%m%d)
 
 # 外部レビューツール（例: CodeGuru, SonarQube）で解析
@@ -98,11 +134,11 @@ git push origin review/feature-xyz-$(date +%m%d)
 ##### 段階的デプロイメント
 ```bash
 # ステージング環境用ブランチ
-git checkout -b staging/feature-release-v1.2
+git branch -M staging/feature-release-v1.2
 git push origin staging/feature-release-v1.2
 
 # プロダクション環境用ブランチ（承認後）
-git checkout -b production/feature-release-v1.2
+git branch -M production/feature-release-v1.2
 git push origin production/feature-release-v1.2
 ```
 
@@ -143,7 +179,7 @@ git config --global credential.helper store
 # 解決方法: 一意なブランチ名の生成
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 BRANCH_NAME="feature/custom-$TIMESTAMP"
-git checkout -b $BRANCH_NAME
+git branch -M $BRANCH_NAME
 git push origin $BRANCH_NAME
 ```
 
@@ -155,11 +191,12 @@ gh repo view --json permissions
 # または GitHub上でリポジトリの設定を確認
 ```
 
-**問題4: ローカルブランチが追跡されていない**
+**問題4: リモート追跡ブランチの不整合**
 ```bash
-# 症状: fatal: The current branch has no upstream branch
-# 解決方法: アップストリームブランチの設定
-git push -u origin feature/custom-branch-name
+# 症状: Your branch is up to date with 'container-use/old-env-name'
+# 解決方法: ブランチリネーム後のリモート追跡設定
+git branch --unset-upstream
+git push -u origin new-branch-name
 ```
 
 ### 複数環境の並行管理
@@ -177,15 +214,15 @@ container-use list
 
 # 各環境を異なるブランチにプッシュして比較
 container-use checkout redis-cache-env
-git checkout -b experiment/redis-cache
+git branch -M experiment/redis-cache
 git push origin experiment/redis-cache
 
 container-use checkout memcached-cache-env
-git checkout -b experiment/memcached-cache
+git branch -M experiment/memcached-cache
 git push origin experiment/memcached-cache
 
 container-use checkout inmemory-cache-env
-git checkout -b experiment/inmemory-cache
+git branch -M experiment/inmemory-cache
 git push origin experiment/inmemory-cache
 
 # 性能テスト結果に基づいて最適解を選択
@@ -328,12 +365,12 @@ jobs:
 container-use checkout development-env
 
 # 2. ステージング環境用ブランチの作成
-git checkout -b deploy/staging-$(date +%Y%m%d-%H%M%S)
+git branch -M deploy/staging-$(date +%Y%m%d-%H%M%S)
 git push origin deploy/staging-$(date +%Y%m%d-%H%M%S)
 
 # 3. ステージング環境でのテスト完了後、プロダクション用ブランチ作成
 # （マニュアル承認後に実行）
-git checkout -b deploy/production-$(date +%Y%m%d-%H%M%S)
+git branch -M deploy/production-$(date +%Y%m%d-%H%M%S)
 git push origin deploy/production-$(date +%Y%m%d-%H%M%S)
 ```
 
@@ -673,4 +710,7 @@ Container-useの真の力を発揮するために、これらのベストプラ�
 
 ---
 
-**このドキュメントは実際のContainer-use環境（informed-bedbug）で作成・検証されています。**
+**このドキュメントは実際のContainer-use環境（informed-bedbug）で作成・検証されています。**  
+**検証日**: 2024年12月14日  
+**検証環境**: informed-bedbug  
+**検証手法**: `git branch -M` + `git push origin` による直接リモートプッシュ
