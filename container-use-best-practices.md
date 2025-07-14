@@ -219,6 +219,51 @@ container-use delete inmemory-cache-env
 
 ## 💡 実践的なテクニック
 
+### 環境とブランチの対応関係最適化
+
+#### 環境タイトルにブランチ名を使用する戦略
+
+Container-use環境の作成時に、環境タイトルとして最終的なブランチ名を指定することで、作業効率と追跡性を大幅に向上できます。
+
+**従来の問題点**:
+```bash
+# 環境ID: informed-bedbug (自動生成)
+# 環境タイトル: "Container-use Best Practices Documentation"
+# ブランチ: container-use/informed-bedbug → docs/container-use-best-practices (手動リネーム)
+```
+
+**改善された手法**:
+```bash
+# エージェントへの指示例
+claude "docs/advanced-container-use-workflows というタイトルで新機能を実装してください"
+
+# または明示的に
+claude "feature/user-authentication のブランチで、JWT認証システムを実装してください"
+```
+
+**この手法の利点**:
+- ✅ 環境とブランチの対応が一目瞭然
+- ✅ git branch -M でのリネーム作業が不要
+- ✅ チーム開発でのトレーサビリティ向上
+- ✅ PR作成時のブランチ名が既に適切
+
+#### 実践例: 環境タイトル = ブランチ名
+```bash
+# 1. 明確なブランチ名でタスクを依頼
+claude "feature/payment-integration のブランチで、Stripe決済機能を実装してください"
+
+# 2. 環境が作成される（例：environment-id: swift-tiger）
+container-use list
+# Environment ID: swift-tiger
+# Title: feature/payment-integration
+# Branch: container-use/swift-tiger
+
+# 3. 作業完了後、タイトル通りのブランチ名にリネーム
+container-use checkout swift-tiger
+git branch -M feature/payment-integration
+git push origin feature/payment-integration
+```
+
 ### ブランチ命名戦略
 
 #### 標準的な命名規則
