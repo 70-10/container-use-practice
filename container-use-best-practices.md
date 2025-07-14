@@ -34,23 +34,26 @@ container-use checkout <environment-id>
 # この時点で 'cu-<environment-id>' ブランチに切り替わります
 
 # 3. 現在のブランチを任意の名前にリネーム（作業履歴を完全保持）
-git branch -M feature/custom-feature-name
+git branch -M docs/container-use-best-practices
 
 # 4. リモートリポジトリに直接プッシュ
-git push origin feature/custom-feature-name
+git push origin docs/container-use-best-practices
 
 # 5. Pull Request の作成（GitHub CLI 使用例）
-gh pr create --title "Feature: Custom Implementation" \
+gh pr create --title "Add Container-use Best Practices Documentation" \
              --body "$(cat <<'EOF'
-## 概要
+## Summary
 Container-use 環境 <environment-id> での作業結果
 
-## 変更内容
-- [変更点1]
-- [変更点2]
+## Changes Made
+- Comprehensive best practices documentation
+- Direct remote push techniques validation
+- Practical workflow examples
 
-## テスト結果
-- [テスト結果]
+## Test Plan
+- [x] Created in Container-use environment
+- [x] Validated direct remote push
+- [x] Documented real execution examples
 EOF
 )"
 ```
@@ -66,8 +69,8 @@ EOF
 ```bash
 # 既存のブランチから新しいブランチを作成する場合
 container-use checkout <environment-id>
-git checkout -b feature/custom-feature-name
-git push origin feature/custom-feature-name
+git checkout -b docs/alternative-branch-name
+git push origin docs/alternative-branch-name
 ```
 
 **方法1-Bの特徴**:
@@ -81,10 +84,10 @@ git push origin feature/custom-feature-name
 container-use terminal <environment-id>
 
 # 2. 環境内で新しいブランチを作成
-git checkout -b feature/custom-branch-name
+git checkout -b docs/container-use-best-practices
 
 # 3. リモートに直接プッシュ
-git push origin feature/custom-branch-name
+git push origin docs/container-use-best-practices
 
 # 4. 環境から退出
 exit
@@ -107,7 +110,7 @@ To ssh://github.com/70-10/container-use-practice.git
  * [new branch]      docs/container-use-best-practices -> docs/container-use-best-practices
 ```
 
-**検証結果**: ✅ 完全に成功。Container-use環境（informed-bedbug）で作成した676行のドキュメントが、ローカルマージなしで直接リモートブランチとしてプッシュされました。
+**検証結果**: ✅ 完全に成功。Container-use環境（informed-bedbug）で作成した700行超のドキュメントが、ローカルマージなしで直接リモートブランチとしてプッシュされました。
 
 #### 使用ケース
 
@@ -175,10 +178,10 @@ git config --global credential.helper store
 
 **問題2: ブランチが既に存在する**
 ```bash
-# 症状: fatal: A branch named 'feature/xyz' already exists
+# 症状: fatal: A branch named 'docs/xyz' already exists
 # 解決方法: 一意なブランチ名の生成
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-BRANCH_NAME="feature/custom-$TIMESTAMP"
+BRANCH_NAME="docs/best-practices-$TIMESTAMP"
 git branch -M $BRANCH_NAME
 git push origin $BRANCH_NAME
 ```
@@ -196,7 +199,7 @@ gh repo view --json permissions
 # 症状: Your branch is up to date with 'container-use/old-env-name'
 # 解決方法: ブランチリネーム後のリモート追跡設定
 git branch --unset-upstream
-git push -u origin new-branch-name
+git push -u origin docs/container-use-best-practices
 ```
 
 ### 複数環境の並行管理
@@ -390,7 +393,7 @@ cat > handover-notes.md << EOF
 
 ## 環境詳細
 - Environment ID: feature-env
-- ブランチ: feature/new-authentication
+- ブランチ: docs/new-authentication-guide
 - ステータス: レビュー準備完了
 - テスト結果: 全てパス
 
@@ -536,7 +539,7 @@ echo "$(date): 現在のアクティブ環境数: $(container-use list | wc -l)"
 # 開発サイクル時間の測定（手動）
 # 環境作成から統合まで時間を記録
 
-echo "Environment: feature-auth-123
+echo "Environment: docs-best-practices-123
 Created: $(date '+%Y-%m-%d %H:%M:%S')
 Completed: [統合時に記録]
 Cycle Time: [計算して記録]" >> cycle-time-log.txt
@@ -625,13 +628,13 @@ git fetch origin
 git log --oneline -5
 
 # 3. 強制プッシュが必要な場合（注意深く使用）
-git push origin feature-branch --force-with-lease
+git push origin docs/feature-branch --force-with-lease
 
 # 4. 新しいブランチでの再作成
 BACKUP_BRANCH="backup-$(date +%s)"
 git branch $BACKUP_BRANCH
-git checkout -b feature-new-attempt
-git push origin feature-new-attempt
+git checkout -b docs/new-attempt
+git push origin docs/new-attempt
 ```
 
 #### 問題: 環境間での不整合
