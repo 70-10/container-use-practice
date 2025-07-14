@@ -77,24 +77,6 @@ git push origin docs/alternative-branch-name
 - 元のブランチ（cu-<environment-id>）を保持したい場合に有効
 - 複数のブランチバリエーションを作成する場合に適している
 
-#### 方法2: 環境内での直接操作
-
-```bash
-# 1. Container-use 環境のターミナルにアクセス
-container-use terminal <environment-id>
-
-# 2. 環境内で新しいブランチを作成
-git checkout -b docs/container-use-best-practices
-
-# 3. リモートに直接プッシュ
-git push origin docs/container-use-best-practices
-
-# 4. 環境から退出
-exit
-```
-
-**注意**: この方法はCLAUDE.mdで制限されているため、使用前に制限事項を確認してください。
-
 #### 実践例: 本ドキュメントでの検証結果
 
 ```bash
