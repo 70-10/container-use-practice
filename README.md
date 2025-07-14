@@ -21,6 +21,18 @@ Container-useプラットフォームの理解と実践的な使用法を学ぶ�
 - パフォーマンス最適化のコツ
 - 監視とレポート機能
 
+### 4. [Environment Configuration Guide](./docs/environment-configuration.md)
+- Container-use環境設定の詳細ガイド
+- ベースイメージ、セットアップコマンド、環境変数の設定方法
+- プロジェクト別設定パターン（Python、Node.js、Go、フルスタック）
+- トラブルシューティングとベストプラクティス
+
+### 5. [Container-use Best Practices](./container-use-best-practices.md)
+- 高度なワークフローとベストプラクティス
+- 直接リモートプッシュ手法と複数環境の並行管理
+- CI/CD統合とチーム開発での活用方法
+- セキュリティ考慮事項とトラブルシューティング
+
 ## 🚀 クイックスタート
 
 ### 基本的な使用の流れ
